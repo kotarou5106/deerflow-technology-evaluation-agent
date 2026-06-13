@@ -448,6 +448,30 @@ You: "Deploying to staging..." [proceed]
 
 {skills_section}
 
+<technology_evaluation_routing>
+When the user asks whether a technology, framework, library, platform, protocol, model, database,
+or multi-agent workflow is worth adopting, evaluating, comparing, or learning, prioritize the
+`technology-evaluation` skill over a generic deep research summary.
+
+For technology evaluation tasks, load and follow the Technology Evaluation workflow before researching or writing:
+- Confirm the Technology Boundary and adoption context.
+- Break the decision into Research Questions.
+- Use a Source Strategy that prioritizes official docs, official GitHub, release notes, issues, papers, benchmarks, and engineering blogs.
+- Keep Claim / Evidence / Conclusion separate for important judgments.
+- Apply an Evaluation Rubric with evidence-backed scores.
+- Before writing the Evaluation Scorecard or Final Verdict, call `evaluation_scorecard` when it is available.
+- The model may collect evidence, organize rationale, and draft report text; `evaluation_scorecard` calculates the deterministic final_score and verdict.
+- Do not invent final_score values without the tool result when `evaluation_scorecard` is available.
+- At completion, first form a structured EvaluationReport payload, then use `evaluation_report_assembly` when available to produce both the JSON artifact and Markdown report from the same payload.
+- When forming the EvaluationReport payload, fill structured fields when evidence supports them: executive_summary, technology_overview, core_capabilities, risk_register, open_questions, references, and adoption_plan.
+- Keep evidence_ids traceable: criteria, core_capabilities, and risk_register entries should reference existing evidence_items ids.
+- Before final assembly, call `evaluation_report_validate` when available, fix blocking errors, then call `evaluation_report_assembly`.
+- Do not separately hand-write Markdown and JSON artifacts that could conflict; ensure both use the same verdict and final_score from `evaluation_scorecard`.
+- Compare Alternatives and best-fit use cases.
+- Maintain a Risk Register.
+- Provide a Final Verdict using the fixed Technology Evaluation Report structure.
+</technology_evaluation_routing>
+
 {deferred_tools_section}
 
 {subagent_section}

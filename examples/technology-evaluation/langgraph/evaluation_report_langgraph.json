@@ -1,0 +1,188 @@
+{
+  "title": "LangGraph Technology Evaluation",
+  "target_technology": "LangGraph",
+  "evaluation_context": "Evaluate LangGraph for long-running AI agent workflows.",
+  "verdict": "Recommended with constraints",
+  "final_score": 3.85,
+  "criteria": [
+    {
+      "name": "Problem Fit",
+      "description": "Fit for long-running AI agent workflows.",
+      "weight": 0.25,
+      "score": 4.2,
+      "rationale": "Strong fit for graph-shaped, stateful workflows.",
+      "evidence_ids": ["ev-docs-persistence"]
+    },
+    {
+      "name": "Technical Capability",
+      "description": "Durable execution, state, and control-flow capability.",
+      "weight": 0.25,
+      "score": 4.0,
+      "rationale": "Core orchestration and persistence capabilities are well aligned.",
+      "evidence_ids": ["ev-docs-persistence"]
+    },
+    {
+      "name": "Maturity & Maintenance",
+      "description": "Project maintenance, release activity, and ecosystem maturity.",
+      "weight": 0.2,
+      "score": 3.6,
+      "rationale": "Adoption is plausible but production operations still require validation.",
+      "evidence_ids": ["ev-github-maintenance"]
+    },
+    {
+      "name": "Operational Complexity",
+      "description": "Debugging, observability, and state management burden.",
+      "weight": 0.15,
+      "score": 3.4,
+      "rationale": "Graph state and checkpointing add operational concepts teams must learn.",
+      "evidence_ids": ["ev-engineering-ops"]
+    },
+    {
+      "name": "Ecosystem & Alternatives",
+      "description": "Documentation, examples, integrations, and relative fit versus alternatives.",
+      "weight": 0.15,
+      "score": 3.8,
+      "rationale": "LangGraph is strong for durable workflows but not always the simplest option.",
+      "evidence_ids": ["ev-github-maintenance"]
+    }
+  ],
+  "evidence_items": [
+    {
+      "id": "ev-docs-persistence",
+      "claim": "LangGraph is designed around graph-based stateful agent orchestration with persistence concepts.",
+      "evidence_summary": "Official documentation describes graph state, checkpoints, and long-running workflow control.",
+      "source_title": "LangGraph Persistence Documentation",
+      "source_url": "https://langchain-ai.github.io/langgraph/concepts/persistence/",
+      "source_type": "official_docs",
+      "trust_level": "high",
+      "support_status": "supports",
+      "confidence": 0.9,
+      "relevance": 0.95,
+      "notes": "Use live documentation during a full research run to verify current APIs."
+    },
+    {
+      "id": "ev-github-maintenance",
+      "claim": "LangGraph has an active open-source project and ecosystem around LangChain.",
+      "evidence_summary": "Repository and release activity should be checked during live research before final adoption.",
+      "source_title": "LangGraph GitHub Repository",
+      "source_url": "https://github.com/langchain-ai/langgraph",
+      "source_type": "official_github",
+      "trust_level": "high",
+      "support_status": "supports",
+      "confidence": 0.8,
+      "relevance": 0.85,
+      "notes": "This deterministic example uses representative source metadata, not live repository inspection."
+    },
+    {
+      "id": "ev-engineering-ops",
+      "claim": "Long-running workflows require explicit validation of checkpoint storage, observability, and recovery.",
+      "evidence_summary": "Engineering evaluation should include failure injection and recovery tests before production rollout.",
+      "source_title": "Production Agent Workflow Operations Notes",
+      "source_url": "https://example.com/engineering/agent-workflow-ops",
+      "source_type": "engineering_blog",
+      "trust_level": "medium",
+      "support_status": "partially_supports",
+      "confidence": 0.7,
+      "relevance": 0.8,
+      "notes": "Representative evidence item used to exercise consistency and risk handling."
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "AutoGen",
+      "description": "Multi-agent conversation framework focused on agent collaboration patterns.",
+      "category": "agent_framework",
+      "strengths": ["Flexible multi-agent conversations", "Good for exploratory prototypes"],
+      "weaknesses": ["Less directly focused on durable graph workflow state"],
+      "best_fit_use_cases": ["Research prototypes", "Conversational multi-agent experiments"],
+      "risks": ["May require extra infrastructure for long-running durable workflows"]
+    },
+    {
+      "name": "CrewAI",
+      "description": "Role/task-oriented multi-agent workflow framework.",
+      "category": "agent_framework",
+      "strengths": ["Simple mental model", "Task delegation ergonomics"],
+      "weaknesses": ["Durability and stateful recovery need separate validation"],
+      "best_fit_use_cases": ["Role-based automation", "Straightforward task pipelines"],
+      "risks": ["May be less suitable for complex stateful graph workflows"]
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Checkpoint recovery spike",
+      "description": "Run a minimal graph with checkpoint persistence and simulate interruption/recovery.",
+      "command": null,
+      "success": false,
+      "logs_summary": "Not run in deterministic pipeline e2e; required for live adoption validation.",
+      "reproducibility_score": 0.0,
+      "notes": "This is a recommended experiment, not an executed result."
+    }
+  ],
+  "risks": ["Operational complexity around checkpointing and debugging must be validated."],
+  "recommendation": "Run a production-like pilot before adopting broadly for long-running workflows.",
+  "executive_summary": {
+    "one_sentence_verdict": "LangGraph is recommended with constraints for long-running AI agent workflows.",
+    "key_reasons": ["Strong fit for stateful graph orchestration", "Good alignment with durable workflow needs"],
+    "major_risks": ["Operational complexity", "Need for recovery and observability validation"],
+    "best_fit": "Teams building stateful, long-running agent workflows that need explicit control flow."
+  },
+  "technology_overview": {
+    "description": "LangGraph is a graph-oriented framework for building stateful agent workflows.",
+    "problem_addressed": "Coordinating multi-step agent workflows with state, control flow, and persistence.",
+    "primary_use_cases": ["Long-running agents", "Human-in-the-loop workflows", "Stateful orchestration"],
+    "key_features": ["Graph execution", "Checkpoint persistence", "Stateful control flow"],
+    "target_users": ["AI platform teams", "Agent application engineers"]
+  },
+  "core_capabilities": [
+    {
+      "name": "Durable stateful orchestration",
+      "description": "Represents agent workflows as graphs with explicit state transitions.",
+      "evidence_ids": ["ev-docs-persistence"],
+      "maturity_level": "production-adjacent",
+      "limitations": ["Requires workflow and checkpoint design discipline"]
+    }
+  ],
+  "risk_register": [
+    {
+      "name": "Operational learning curve",
+      "description": "Teams must learn graph debugging, state inspection, and checkpoint recovery.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "Run a pilot with tracing, recovery tests, and rollback criteria.",
+      "evidence_ids": ["ev-engineering-ops"]
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Does checkpoint storage meet the target system's recovery objectives?",
+      "why_it_matters": "Recovery guarantees are central to long-running workflow adoption.",
+      "suggested_validation": "Run failure injection against the intended deployment environment."
+    }
+  ],
+  "references": [
+    {
+      "title": "LangGraph Persistence Documentation",
+      "url": "https://langchain-ai.github.io/langgraph/concepts/persistence/",
+      "source_type": "official_docs",
+      "publisher": "LangChain",
+      "accessed_at": null,
+      "notes": "Representative official source for deterministic pipeline validation."
+    },
+    {
+      "title": "LangGraph Persistence Documentation Duplicate",
+      "url": "https://langchain-ai.github.io/langgraph/concepts/persistence/",
+      "source_type": "official_docs",
+      "publisher": "LangChain",
+      "accessed_at": null,
+      "notes": "Intentional duplicate to verify Consistency Notes rendering."
+    }
+  ],
+  "adoption_plan": {
+    "recommendation": "Run a constrained production-like pilot before broad adoption.",
+    "suggested_next_steps": ["Build a thin workflow slice", "Instrument checkpoint recovery", "Compare against AutoGen and CrewAI"],
+    "validation_plan": ["Run quickstart", "Run interruption/recovery test", "Inspect trace/debug workflow"],
+    "rollout_strategy": "Adopt for one long-running workflow after pilot evidence is collected.",
+    "decision_deadline": "After pilot and recovery tests complete."
+  }
+}
+

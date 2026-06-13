@@ -398,6 +398,17 @@ def test_system_prompt_template_contains_file_editing_workflow_rule():
     assert "append=True" in template
 
 
+def test_system_prompt_template_contains_technology_evaluation_routing_guidance():
+    template = prompt_module.SYSTEM_PROMPT_TEMPLATE
+
+    assert "technology-evaluation" in template
+    assert "Technology Evaluation workflow" in template
+    assert "Claim / Evidence / Conclusion" in template
+    assert "evaluation_scorecard" in template
+    assert "deterministic final_score and verdict" in template
+    assert "Final Verdict" in template
+
+
 def test_system_prompt_template_preserves_placeholders():
     """Ensure the chunking-rule edit didn't drop any f-string placeholder
     consumed by apply_prompt_template(). A missing placeholder would

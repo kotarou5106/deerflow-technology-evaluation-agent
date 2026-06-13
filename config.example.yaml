@@ -886,6 +886,25 @@ sandbox:
 #       timeout_seconds: 300   # 5 minutes for quick command execution
 #       max_turns: 80
 #       # skills: []            # No skills for bash agent
+#     evidence-researcher:
+#       timeout_seconds: 1200  # Technology evaluation evidence collection can require multiple source fetches
+#       max_turns: 120
+#       skills:
+#         - technology-evaluation
+#         - deep-research
+#         - github-deep-research
+#     alternative-analyst:
+#       timeout_seconds: 900
+#       max_turns: 100
+#       skills:
+#         - technology-evaluation
+#         - deep-research
+#         - github-deep-research
+#     experiment-runner:
+#       timeout_seconds: 900
+#       max_turns: 100
+#       skills:
+#         - technology-evaluation
 #
 #   # Custom subagent types: define specialized agents with their own prompts,
 #   # tools, skills, and model configuration. Custom agents are available via

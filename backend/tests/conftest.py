@@ -7,6 +7,7 @@ issues when unit-testing lightweight config/registry code in isolation.
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -29,15 +30,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 #
 # By injecting a mock for deerflow.subagents.executor *before* any test module
 # triggers the import, __init__.py's "from .executor import ..." succeeds
-# immediately without running the real executor module.
-_executor_mock = MagicMock()
-_executor_mock.SubagentExecutor = MagicMock
-_executor_mock.SubagentResult = MagicMock
-_executor_mock.SubagentStatus = MagicMock
-_executor_mock.MAX_CONCURRENT_SUBAGENTS = 3
-_executor_mock.get_background_task_result = MagicMock()
+# immediately without running the real executor module. The live technology
+# evaluation E2E intentionally exercises the real task/subagent path, so it must
+# not inherit this mock.
+if os.environ.get("TECHNOLOGY_EVALUATION_LIVE_E2E") != "1":
+    _executor_mock = MagicMock()
+    _executor_mock.SubagentExecutor = MagicMock
+    _executor_mock.SubagentResult = MagicMock
+    _executor_mock.SubagentStatus = MagicMock
+    _executor_mock.MAX_CONCURRENT_SUBAGENTS = 3
+    _executor_mock.get_background_task_result = MagicMock()
 
-sys.modules["deerflow.subagents.executor"] = _executor_mock
+    sys.modules["deerflow.subagents.executor"] = _executor_mock
 
 
 @pytest.fixture()
