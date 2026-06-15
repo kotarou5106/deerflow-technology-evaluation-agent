@@ -88,6 +88,13 @@ database:
   backend: sqlite
   sqlite_dir: .deer-flow/data
 
+# Single-node ECS with a persistent DEER_FLOW_HOME should keep LangGraph
+# checkpoint/store state on disk. This intentionally points at the same SQLite
+# file derived from database.sqlite_dir.
+checkpointer:
+  type: sqlite
+  connection_string: data/deerflow.db
+
 run_events:
   backend: db
 
@@ -114,4 +121,3 @@ guardrails:
     config:
       denied_tools:
         - bash
-
