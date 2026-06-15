@@ -108,6 +108,21 @@ Evaluate LangGraph for long-running AI agent workflows.
 
 JSON artifact 遵循 `EvaluationReport` schema，便于后续前端渲染 Evidence Matrix、Evaluation Scorecard、Alternative Comparison 和 Risk Register，而不是只能解析 Markdown。
 
+## Frontend EvaluationReport Viewer
+
+当前前端在打开符合 `EvaluationReport` 结构特征的 JSON artifact 时，会使用技术评估专用视图展示核心报告内容，而不是只显示原始 JSON。
+
+该视图会渲染：
+
+- verdict summary
+- scorecard
+- evidence matrix
+- risk register
+- alternatives
+- references
+
+普通 JSON artifact 仍保持原有 code view 行为。
+
 ## Implementation Highlights
 
 本项目新增和改造的核心位置：

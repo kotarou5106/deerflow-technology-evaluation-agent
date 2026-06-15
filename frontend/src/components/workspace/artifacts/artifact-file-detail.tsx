@@ -52,6 +52,10 @@ import { useThread } from "../messages/context";
 import { Tooltip } from "../tooltip";
 
 import { useArtifacts } from "./context";
+import {
+  EvaluationReportViewer,
+  parseEvaluationReportArtifact,
+} from "./evaluation-report-viewer";
 
 const WRITE_FILE_PREVIEW_REFRESH_INTERVAL_MS = 3000;
 
@@ -92,9 +96,6 @@ export function ArtifactFileDetail({
     }
     return checkCodeFile(filepath);
   }, [filepath, isWriteFile, isSkillFile]);
-  const isSupportPreview = useMemo(() => {
-    return language === "html" || language === "markdown";
-  }, [language]);
   const toolResult = (() => {
     if (!isWriteFile) {
       return undefined;
@@ -106,11 +107,6 @@ export function ArtifactFileDetail({
     }
     return findToolCallResult(toolCallId, thread.messages);
   })();
-  const artifactViewState = getArtifactViewState({
-    filepath: filepathFromProps,
-    isSupportPreview,
-    toolResult,
-  });
   const { content, url } = useArtifactContent({
     threadId,
     filepath: filepathFromProps,
@@ -124,6 +120,20 @@ export function ArtifactFileDetail({
     isWritingFile ? WRITE_FILE_PREVIEW_REFRESH_INTERVAL_MS : 0,
     filepathFromProps,
   );
+  const evaluationReport = useMemo(() => {
+    return parseEvaluationReportArtifact({
+      content: visibleContent ?? "",
+      filepath,
+    });
+  }, [filepath, visibleContent]);
+  const isSupportPreview = useMemo(() => {
+    return language === "html" || language === "markdown" || !!evaluationReport;
+  }, [evaluationReport, language]);
+  const artifactViewState = getArtifactViewState({
+    filepath: filepathFromProps,
+    isSupportPreview,
+    toolResult,
+  });
 
   const [viewMode, setViewMode] = useState<"code" | "preview">(
     artifactViewState.initialViewMode,
@@ -295,6 +305,11 @@ export function ArtifactFileDetail({
               scrollKey={filepathFromProps}
               url={url}
             />
+          )}
+        {artifactViewState.canPreview &&
+          viewMode === "preview" &&
+          evaluationReport && (
+            <EvaluationReportViewer report={evaluationReport} />
           )}
         {isCodeFile && viewMode === "code" && (
           <CodeEditor
