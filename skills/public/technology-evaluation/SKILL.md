@@ -223,6 +223,131 @@ When constructing the `EvaluationReport` payload, fill the structured fields whe
 
 Keep the legacy `risks` field as a short risk summary when useful. Use `risk_register` for detailed risk analysis. Keep the legacy `recommendation` field for compatibility, and use `adoption_plan` for structured adoption guidance.
 
+Use this compact canonical `EvaluationReport` skeleton when constructing the payload. Preserve the object/list shapes exactly; replace placeholder strings with evidence-backed content:
+
+```json
+{
+  "title": "LangGraph Technology Evaluation",
+  "target_technology": "LangGraph",
+  "evaluation_context": "Evaluate LangGraph for long-running AI agent workflows.",
+  "verdict": "Recommended with constraints",
+  "final_score": 3.85,
+  "criteria": [
+    {
+      "name": "Problem Fit",
+      "description": "Fit for the stated adoption context.",
+      "weight": 0.25,
+      "score": 4.0,
+      "rationale": "Evidence-backed scoring rationale.",
+      "evidence_ids": ["ev-1"]
+    }
+  ],
+  "evidence_items": [
+    {
+      "id": "ev-1",
+      "claim": "Specific claim being evaluated.",
+      "evidence_summary": "Concise summary of the source evidence.",
+      "source_title": "Human-readable source title",
+      "source_url": "https://example.com/source",
+      "source_type": "official_docs",
+      "trust_level": "high",
+      "support_status": "supports",
+      "confidence": 0.9,
+      "relevance": 0.95,
+      "notes": "Caveats or context."
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "Alternative name",
+      "description": "What the alternative is.",
+      "category": "framework",
+      "strengths": ["Where it is strong."],
+      "weaknesses": ["Where it is weak."],
+      "best_fit_use_cases": ["Best-fit use case."],
+      "risks": ["Alternative-specific risk."]
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Validation experiment",
+      "description": "What was or should be validated.",
+      "command": null,
+      "success": false,
+      "logs_summary": "Not run; recommended validation.",
+      "reproducibility_score": 0.0,
+      "notes": "Experiment caveats."
+    }
+  ],
+  "risks": ["Short risk summary."],
+  "recommendation": "Compatibility recommendation string.",
+  "executive_summary": {
+    "one_sentence_verdict": "One-sentence adoption verdict.",
+    "key_reasons": ["Evidence-backed reason."],
+    "major_risks": ["Major risk."],
+    "best_fit": "Best-fit adoption context."
+  },
+  "technology_overview": {
+    "description": "Technology description.",
+    "problem_addressed": "Problem addressed.",
+    "primary_use_cases": ["Use case."],
+    "key_features": ["Feature."],
+    "target_users": ["Target user."]
+  },
+  "core_capabilities": [
+    {
+      "name": "Capability name",
+      "description": "Capability description.",
+      "evidence_ids": ["ev-1"],
+      "maturity_level": "maturity label",
+      "limitations": ["Known limitation."]
+    }
+  ],
+  "risk_register": [
+    {
+      "name": "Risk name",
+      "description": "Risk description.",
+      "severity": "medium",
+      "likelihood": "medium",
+      "mitigation": "Mitigation plan.",
+      "evidence_ids": ["ev-1"]
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "Decision-relevant unknown?",
+      "why_it_matters": "Why this affects adoption.",
+      "suggested_validation": "How to validate it."
+    }
+  ],
+  "references": [
+    {
+      "title": "Source title",
+      "url": "https://example.com/source",
+      "source_type": "official_docs",
+      "publisher": "Publisher",
+      "accessed_at": null,
+      "notes": "Reference notes."
+    }
+  ],
+  "adoption_plan": {
+    "recommendation": "Structured adoption recommendation.",
+    "suggested_next_steps": ["Next step."],
+    "validation_plan": ["Validation step."],
+    "rollout_strategy": "Rollout strategy.",
+    "decision_deadline": "Decision timing."
+  }
+}
+```
+
+Avoid these invalid loose shapes:
+
+- Do not set `executive_summary` or `technology_overview` to a string; use the object shapes above.
+- Do not use string arrays for `open_questions`; each entry must be an object.
+- Do not use strings such as `"high"` for `evidence_items.relevance`; use a number from 0.0 to 1.0.
+- Do not omit `title`, `evidence_summary`, `source_title`, `confidence`, `alternatives.category`, or `risk_register.name` / `risk_register.description`.
+- Do not set `adoption_plan.validation_plan` to one string; use a list of strings.
+
 Before calling `evaluation_report_assembly`, check evidence consistency:
 
 - Every `criteria.evidence_ids` value should match an existing `evidence_items.id`.

@@ -171,8 +171,78 @@ def test_schema_validation_failure_returns_error_result():
     assert result["error_count"] == 1
     assert result["warning_count"] == 0
     assert result["errors"][0]["code"] == "schema_validation_error"
-    assert "target_technology" in result["errors"][0]["message"]
+    assert result["errors"][0]["path"] == "target_technology"
+    assert "Field required" in result["errors"][0]["message"]
     assert "Fix the EvaluationReport payload so it matches the required schema." in result["next_actions"]
+
+
+def test_schema_validation_guides_loose_payload_shapes():
+    report = _report()
+    report["executive_summary"] = "Recommended with constraints."
+    report["technology_overview"] = "Graph workflow framework."
+    report["evidence_items"][0]["relevance"] = "high"
+    report["open_questions"] = ["Does recovery meet the target RTO?"]
+    report["adoption_plan"] = {
+        "recommendation": "Pilot first.",
+        "validation_plan": "Run recovery tests.",
+    }
+
+    result = validate_evaluation_report_payload(report)
+
+    assert result["passed"] is False
+    errors_by_path = {error["path"]: error for error in result["errors"]}
+    assert "executive_summary" in errors_by_path
+    assert "technology_overview" in errors_by_path
+    assert "evidence_items[0].relevance" in errors_by_path
+    assert "open_questions[0]" in errors_by_path
+    assert "adoption_plan.validation_plan" in errors_by_path
+    assert "Use executive_summary as an object" in errors_by_path["executive_summary"]["fix_hint"]
+    assert "Use relevance as a JSON number" in errors_by_path["evidence_items[0].relevance"]["fix_hint"]
+    assert "Use open_questions as a list of objects" in errors_by_path["open_questions[0]"]["fix_hint"]
+    assert "Use adoption_plan.validation_plan as a list" in errors_by_path["adoption_plan.validation_plan"]["fix_hint"]
+    assert any("Use executive_summary as an object" in action for action in result["next_actions"])
+
+
+def test_schema_validation_guides_missing_live_run_fields():
+    report = _report()
+    report.pop("title")
+    report["evidence_items"][0].pop("evidence_summary")
+    report["evidence_items"][0].pop("source_title")
+    report["evidence_items"][0].pop("confidence")
+    report["alternatives"] = [
+        {
+            "name": "AutoGen",
+            "description": "Multi-agent conversation framework.",
+            "strengths": ["Flexible collaboration patterns."],
+            "weaknesses": ["Durability needs validation."],
+            "best_fit_use_cases": ["Research prototypes."],
+            "risks": ["Extra infrastructure may be required."],
+        }
+    ]
+    report["risk_register"] = [
+        {
+            "severity": "medium",
+            "likelihood": "medium",
+            "mitigation": "Run a pilot.",
+            "evidence_ids": ["ev-2"],
+        }
+    ]
+
+    result = validate_evaluation_report_payload(report)
+
+    assert result["passed"] is False
+    errors_by_path = {error["path"]: error for error in result["errors"]}
+    for path in [
+        "title",
+        "evidence_items[0].evidence_summary",
+        "evidence_items[0].source_title",
+        "evidence_items[0].confidence",
+        "alternatives[0].category",
+        "risk_register[0].name",
+        "risk_register[0].description",
+    ]:
+        assert path in errors_by_path
+        assert errors_by_path[path]["fix_hint"]
 
 
 def test_validate_tool_does_not_write_artifacts(tmp_path: Path):

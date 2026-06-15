@@ -33,16 +33,71 @@ def _issue_to_dict(issue: ConsistencyIssue) -> dict[str, Any]:
     return issue.model_dump(mode="json")
 
 
-def _schema_validation_issue(exc: ValidationError) -> dict[str, Any]:
-    locations = [str(error.get("loc", "")) for error in exc.errors()]
-    paths = ", ".join(location for location in locations if location) or None
-    return {
-        "level": "error",
-        "code": "schema_validation_error",
-        "message": str(exc),
-        "path": paths,
-        "referenced_id": None,
-    }
+def _format_schema_path(loc: tuple[Any, ...]) -> str:
+    path = ""
+    for part in loc:
+        if isinstance(part, int):
+            path += f"[{part}]"
+        else:
+            path += f".{part}" if path else str(part)
+    return path or "<root>"
+
+
+def _schema_fix_hint(path: str, error_type: str) -> str:
+    if path == "title":
+        return "Add title as a short string, for example '<Technology> Technology Evaluation'."
+    if path.startswith("evidence_items["):
+        if path.endswith(".evidence_summary"):
+            return "Add evidence_summary as a concise string summarizing the source evidence."
+        if path.endswith(".source_title"):
+            return "Add source_title as a human-readable source title string."
+        if path.endswith(".confidence"):
+            return "Add confidence as a number from 0.0 to 1.0, or high/medium/low."
+        if path.endswith(".relevance"):
+            return "Use relevance as a JSON number from 0.0 to 1.0, not a string label."
+        return "Each evidence_items entry must be an object with claim, evidence_summary, source_title, source_url, source_type, trust_level, support_status, confidence, and numeric relevance."
+    if path.startswith("alternatives[") and path.endswith(".category"):
+        return "Add category as a short string such as framework, library, platform, model, database, or tool."
+    if path == "executive_summary" or path.startswith("executive_summary."):
+        return "Use executive_summary as an object with one_sentence_verdict, key_reasons, major_risks, and best_fit."
+    if path == "technology_overview" or path.startswith("technology_overview."):
+        return "Use technology_overview as an object with description, problem_addressed, primary_use_cases, key_features, and target_users."
+    if path.startswith("risk_register["):
+        if path.endswith(".name"):
+            return "Add risk_register[].name as a short risk title string."
+        if path.endswith(".description"):
+            return "Add risk_register[].description as a concrete risk description string."
+        return "Each risk_register entry must be an object with name, description, severity, likelihood, mitigation, and evidence_ids."
+    if path.startswith("open_questions"):
+        return "Use open_questions as a list of objects, each with question, why_it_matters, and suggested_validation; do not use plain strings."
+    if path == "adoption_plan.validation_plan" or path.startswith("adoption_plan.validation_plan"):
+        return "Use adoption_plan.validation_plan as a list of validation step strings, not one combined string."
+    if error_type == "missing":
+        return "Add the required field using the EvaluationReport schema."
+    if error_type.endswith("_type"):
+        return "Change the value to the required JSON type for this EvaluationReport field."
+    return "Fix this field so it matches the EvaluationReport schema."
+
+
+def _schema_validation_issues(exc: ValidationError) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    for error in exc.errors():
+        loc = error.get("loc", ())
+        loc_tuple = tuple(loc) if isinstance(loc, tuple | list) else (loc,)
+        path = _format_schema_path(loc_tuple)
+        error_type = str(error.get("type", ""))
+        issues.append(
+            {
+                "level": "error",
+                "code": "schema_validation_error",
+                "message": str(error.get("msg", "Schema validation failed.")),
+                "path": path,
+                "referenced_id": None,
+                "error_type": error_type,
+                "fix_hint": _schema_fix_hint(path, error_type),
+            }
+        )
+    return issues
 
 
 def _next_actions(errors: list[dict[str, Any]], warnings: list[dict[str, Any]]) -> list[str]:
@@ -51,6 +106,9 @@ def _next_actions(errors: list[dict[str, Any]], warnings: list[dict[str, Any]]) 
         action = _NEXT_ACTIONS_BY_CODE.get(issue["code"], "Review and fix the reported validation issue.")
         if action not in actions:
             actions.append(action)
+        fix_hint = issue.get("fix_hint")
+        if isinstance(fix_hint, str) and fix_hint and fix_hint not in actions:
+            actions.append(fix_hint)
     return actions
 
 
@@ -59,7 +117,7 @@ def validate_evaluation_report_payload(report: dict[str, Any]) -> dict[str, Any]
     try:
         parsed_report = EvaluationReport.model_validate(report)
     except ValidationError as exc:
-        errors = [_schema_validation_issue(exc)]
+        errors = _schema_validation_issues(exc)
         return {
             "passed": False,
             "error_count": len(errors),
@@ -89,9 +147,10 @@ def evaluation_report_validate_tool(report: dict[str, Any]) -> dict[str, Any]:
     Use this tool for Technology Research & Evaluation Agent tasks before
     calling `evaluation_report_assembly`. It validates the EvaluationReport
     schema, checks evidence consistency, and returns blocking errors,
-    non-blocking warnings, and next_actions. It does not write files, create
-    artifacts, call an LLM, search the web, access the network, or modify the
-    payload.
+    non-blocking warnings, and next_actions. Schema errors include field paths
+    and fix_hint values so callers can repair loose payload shapes before
+    validating again. It does not write files, create artifacts, call an LLM,
+    search the web, access the network, or modify the payload.
 
     Args:
         report: Complete or near-complete EvaluationReport payload to validate.

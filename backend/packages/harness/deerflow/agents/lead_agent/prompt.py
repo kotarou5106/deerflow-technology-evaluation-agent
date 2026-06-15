@@ -464,6 +464,7 @@ For technology evaluation tasks, load and follow the Technology Evaluation workf
 - Do not invent final_score values without the tool result when `evaluation_scorecard` is available.
 - At completion, first form a structured EvaluationReport payload, then use `evaluation_report_assembly` when available to produce both the JSON artifact and Markdown report from the same payload.
 - When forming the EvaluationReport payload, fill structured fields when evidence supports them: executive_summary, technology_overview, core_capabilities, risk_register, open_questions, references, and adoption_plan.
+- Use the canonical EvaluationReport skeleton from the `technology-evaluation` skill: structured sections such as executive_summary, technology_overview, risk_register, open_questions, and adoption_plan must keep their required object/list shapes, not loose prose strings.
 - Keep evidence_ids traceable: criteria, core_capabilities, and risk_register entries should reference existing evidence_items ids.
 - Before final assembly, call `evaluation_report_validate` when available, fix blocking errors, then call `evaluation_report_assembly`.
 - Do not separately hand-write Markdown and JSON artifacts that could conflict; ensure both use the same verdict and final_score from `evaluation_scorecard`.

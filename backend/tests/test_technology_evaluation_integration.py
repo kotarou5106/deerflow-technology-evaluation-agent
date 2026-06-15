@@ -61,6 +61,8 @@ def test_prompt_contains_technology_evaluation_routing_guidance():
     assert "risk_register" in template
     assert "references" in template
     assert "adoption_plan" in template
+    assert "canonical EvaluationReport skeleton" in template
+    assert "required object/list shapes" in template
     assert "evidence_ids traceable" in template
     assert "existing evidence_items ids" in template
     assert "`evaluation_report_validate`" in template
@@ -99,6 +101,7 @@ def test_technology_evaluation_skill_mentions_structured_report_fields():
     content = TECH_EVAL_SKILL.read_text(encoding="utf-8")
 
     for field in [
+        "title",
         "executive_summary",
         "technology_overview",
         "core_capabilities",
@@ -108,6 +111,16 @@ def test_technology_evaluation_skill_mentions_structured_report_fields():
         "adoption_plan",
     ]:
         assert field in content
+    assert "canonical `EvaluationReport` skeleton" in content
+    assert '"evidence_summary"' in content
+    assert '"source_title"' in content
+    assert '"confidence": 0.9' in content
+    assert '"relevance": 0.95' in content
+    assert '"category": "framework"' in content
+    assert '"open_questions"' in content
+    assert '"validation_plan": ["Validation step."]' in content
+    assert "Do not set `executive_summary` or `technology_overview` to a string" in content
+    assert "Do not use string arrays for `open_questions`" in content
 
 
 def test_technology_evaluation_skill_mentions_evidence_consistency():
