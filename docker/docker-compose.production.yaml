@@ -1,0 +1,60 @@
+# Production override for Alibaba Cloud ECS.
+#
+# Usage from the repository root:
+#   docker compose \
+#     --env-file docker/.env.production \
+#     -f docker/docker-compose.yaml \
+#     -f docker/docker-compose.production.yaml \
+#     up -d --build nginx gateway
+
+services:
+  nginx:
+    depends_on: !override
+      - gateway
+    volumes: !override
+      - ./nginx/nginx.production.conf:/etc/nginx/nginx.conf.template:ro
+
+  gateway:
+    command: sh -c "cd backend && PYTHONPATH=. uv run uvicorn app.gateway.app:app --host 0.0.0.0 --port 8001 --workers 1"
+    env_file: !override []
+    volumes: !override
+      - ${DEER_FLOW_CONFIG_HOST_PATH:-/data/deer-flow/config.yaml}:/app/backend/config.yaml:ro
+      - ${DEER_FLOW_EXTENSIONS_CONFIG_HOST_PATH:-/data/deer-flow/extensions_config.json}:/app/backend/extensions_config.json:ro
+      - ../skills:/app/skills:ro
+      - ${DEER_FLOW_HOME:-/data/deer-flow}:/app/backend/.deer-flow
+      - ${DEER_FLOW_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock
+    environment:
+      - CI=true
+      - DEER_FLOW_PROJECT_ROOT=/app
+      - DEER_FLOW_HOME=/app/backend/.deer-flow
+      - DEER_FLOW_CONFIG_PATH=/app/backend/config.yaml
+      - DEER_FLOW_EXTENSIONS_CONFIG_PATH=/app/backend/extensions_config.json
+      - DEER_FLOW_ENV=production
+      - ENVIRONMENT=production
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - AUTH_JWT_SECRET=${AUTH_JWT_SECRET}
+      - GATEWAY_ENABLE_DOCS=${GATEWAY_ENABLE_DOCS:-false}
+      - GATEWAY_CORS_ORIGINS=${GATEWAY_CORS_ORIGINS:-}
+      - AUTH_TRUSTED_PROXIES=${AUTH_TRUSTED_PROXIES:-}
+      - DEER_FLOW_INTERNAL_AUTH_TOKEN=${DEER_FLOW_INTERNAL_AUTH_TOKEN}
+      - TAVILY_API_KEY=${TAVILY_API_KEY:-}
+      - JINA_API_KEY=${JINA_API_KEY:-}
+      - SERPER_API_KEY=${SERPER_API_KEY:-}
+      - DEER_FLOW_CHANNELS_LANGGRAPH_URL=${DEER_FLOW_CHANNELS_LANGGRAPH_URL:-http://gateway:8001/api}
+      - DEER_FLOW_CHANNELS_GATEWAY_URL=${DEER_FLOW_CHANNELS_GATEWAY_URL:-http://gateway:8001}
+      - DEER_FLOW_HOST_BASE_DIR=${DEER_FLOW_HOME:-/data/deer-flow}
+      - DEER_FLOW_HOST_SKILLS_PATH=${DEER_FLOW_REPO_ROOT:-/opt/deer-flow}/skills
+      - DEER_FLOW_SANDBOX_HOST=host.docker.internal
+      - NO_PROXY=${NO_PROXY:-}${NO_PROXY:+,}localhost,127.0.0.1,::1,gateway,frontend,nginx,host.docker.internal
+      - no_proxy=${no_proxy:-}${no_proxy:+,}localhost,127.0.0.1,::1,gateway,frontend,nginx,host.docker.internal
+
+  frontend:
+    env_file: !override []
+    environment:
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - DEER_FLOW_INTERNAL_GATEWAY_BASE_URL=http://gateway:8001
+
+  provisioner:
+    profiles:
+      - kubernetes-sandbox
+    env_file: !override []
