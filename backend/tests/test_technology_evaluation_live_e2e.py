@@ -24,11 +24,7 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LIVE_ENABLED = os.environ.get("TECHNOLOGY_EVALUATION_LIVE_E2E") == "1"
 HAS_CONFIG = PROJECT_ROOT.joinpath("config.yaml").exists()
-SKIP_REASON = (
-    "Technology evaluation live E2E requires "
-    "TECHNOLOGY_EVALUATION_LIVE_E2E=1 and project-root config.yaml "
-    "with valid model credentials"
-)
+SKIP_REASON = "Technology evaluation live E2E requires TECHNOLOGY_EVALUATION_LIVE_E2E=1 and project-root config.yaml with valid model credentials"
 
 LIVE_PROMPT = """Evaluate LangGraph for long-running AI agent workflows.
 
@@ -150,9 +146,7 @@ def test_live_langgraph_research_generates_structured_artifacts():
 
     missing_tools = REQUIRED_TOOLS.difference(tool_names)
     assert not missing_tools, f"Missing required technology evaluation tools: {sorted(missing_tools)}"
-    assert any(name in {"web_search", "web_fetch"} for name in tool_names), (
-        "Expected at least one live research tool call such as web_search or web_fetch"
-    )
+    assert any(name in {"web_search", "web_fetch"} for name in tool_names), "Expected at least one live research tool call such as web_search or web_fetch"
 
     json_artifact = _artifact_lookup(artifacts, ".json")
     markdown_artifact = _artifact_lookup(artifacts, ".md")

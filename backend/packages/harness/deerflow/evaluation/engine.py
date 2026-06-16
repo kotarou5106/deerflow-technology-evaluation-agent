@@ -79,11 +79,7 @@ def summarize_scorecard(criteria: Sequence[EvaluationCriterion]) -> str:
     strongest = max(criteria, key=lambda criterion: criterion.score)
     weakest = min(criteria, key=lambda criterion: criterion.score)
     final_score = calculate_weighted_score(criteria)
-    return (
-        f"Weighted score {final_score:.2f}/5 across {len(criteria)} criteria. "
-        f"Strongest criterion: {strongest.name} ({strongest.score:.1f}/5). "
-        f"Weakest criterion: {weakest.name} ({weakest.score:.1f}/5)."
-    )
+    return f"Weighted score {final_score:.2f}/5 across {len(criteria)} criteria. Strongest criterion: {strongest.name} ({strongest.score:.1f}/5). Weakest criterion: {weakest.name} ({weakest.score:.1f}/5)."
 
 
 def build_scorecard_result(criteria: Sequence[EvaluationCriterion], critical_risks: Sequence[str] | None = None) -> ScorecardResult:
