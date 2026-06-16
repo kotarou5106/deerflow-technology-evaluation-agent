@@ -49,6 +49,10 @@ conf.yaml
 web/
 docs/
 examples/
+!examples/
+!examples/technology-evaluation/
+!examples/technology-evaluation/langgraph/
+!examples/technology-evaluation/langgraph/evaluation_report_langgraph.json
 assets/
 tests/
 *.log

@@ -22,6 +22,7 @@ RUN pnpm config set store-dir ${PNPM_STORE_PATH}
 RUN if [ -n "${NPM_REGISTRY}" ]; then pnpm config set registry "${NPM_REGISTRY}"; fi
 WORKDIR /app
 COPY frontend ./frontend
+COPY examples/technology-evaluation/langgraph/evaluation_report_langgraph.json ./examples/technology-evaluation/langgraph/evaluation_report_langgraph.json
 
 # ── Dev: install only, CMD is overridden by docker-compose ───────────────────
 FROM base AS dev
@@ -46,5 +47,6 @@ RUN pnpm config set store-dir ${PNPM_STORE_PATH}
 RUN if [ -n "${NPM_REGISTRY}" ]; then pnpm config set registry "${NPM_REGISTRY}"; fi
 WORKDIR /app
 COPY --from=builder /app/frontend ./frontend
+COPY --from=builder /app/examples ./examples
 EXPOSE 3000
 CMD ["sh", "-c", "cd /app/frontend && pnpm start"]
