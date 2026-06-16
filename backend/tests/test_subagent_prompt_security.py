@@ -6,18 +6,28 @@ from deerflow.subagents import registry as registry_module
 
 def test_get_available_subagent_names_hides_bash_when_host_bash_disabled(monkeypatch) -> None:
     monkeypatch.setattr(registry_module, "is_host_bash_allowed", lambda: False)
+    monkeypatch.setattr(
+        registry_module,
+        "get_subagent_names",
+        lambda *, app_config=None: ["general-purpose", "bash", "custom-agent"],
+    )
 
     names = registry_module.get_available_subagent_names()
 
-    assert names == ["general-purpose"]
+    assert names == ["general-purpose", "custom-agent"]
 
 
 def test_get_available_subagent_names_keeps_bash_when_allowed(monkeypatch) -> None:
     monkeypatch.setattr(registry_module, "is_host_bash_allowed", lambda: True)
+    monkeypatch.setattr(
+        registry_module,
+        "get_subagent_names",
+        lambda *, app_config=None: ["general-purpose", "bash", "custom-agent"],
+    )
 
     names = registry_module.get_available_subagent_names()
 
-    assert names == ["general-purpose", "bash"]
+    assert names == ["general-purpose", "bash", "custom-agent"]
 
 
 def test_build_subagent_section_hides_bash_examples_when_unavailable(monkeypatch) -> None:
