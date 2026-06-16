@@ -25,6 +25,20 @@ const config = {
     defaultLocale: "en",
   },
   devIndicators: false,
+  async redirects() {
+    if (process.env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY !== "true") {
+      return [];
+    }
+
+    return [
+      {
+        source: "/",
+        destination: "/demo/technology-evaluation",
+        permanent: false,
+        locale: false,
+      },
+    ];
+  },
   async rewrites() {
     const rewrites = [];
     const gatewayURL = getInternalServiceURL(

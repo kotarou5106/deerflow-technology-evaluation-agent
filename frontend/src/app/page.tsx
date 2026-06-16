@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
@@ -8,13 +6,8 @@ import { CommunitySection } from "@/components/landing/sections/community-sectio
 import { SandboxSection } from "@/components/landing/sections/sandbox-section";
 import { SkillsSection } from "@/components/landing/sections/skills-section";
 import { WhatsNewSection } from "@/components/landing/sections/whats-new-section";
-import { isStaticWebsiteOnly } from "@/core/static-mode";
 
 export default function LandingPage() {
-  if (isStaticWebsiteOnly()) {
-    redirect("/demo/technology-evaluation");
-  }
-
   return (
     <div className="min-h-screen w-full bg-[#0a0a0a]">
       <Header />
