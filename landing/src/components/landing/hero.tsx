@@ -34,6 +34,9 @@ export function Hero({ className }: { className?: string }) {
         <h1 className="bg-gradient-to-r from-white via-sky-100 to-emerald-200 bg-clip-text text-center text-4xl font-bold text-transparent md:text-6xl">
           技术评估 Agent
         </h1>
+        <p className="mt-5 max-w-2xl text-center text-base leading-7 text-white/75 md:text-lg md:leading-8">
+          输入一个技术主题、方案或平台，Agent 会围绕证据收集、替代方案比较、评分矩阵、风险登记和结构化报告，系统判断它是否值得采用、适用于什么条件，以及下一步应如何推进。
+        </p>
         <div className="mt-8 flex items-center">
           <Button className="size-lg scale-108" size="lg" asChild>
             <a href={LIVE_URL}>
